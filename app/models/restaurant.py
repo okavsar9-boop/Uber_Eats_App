@@ -1,4 +1,3 @@
-# Change Decimal to Numeric here
 from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, TIMESTAMP, func
 from sqlalchemy.orm import relationship
 from app.database import Base
