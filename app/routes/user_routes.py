@@ -1,20 +1,19 @@
-from fastapi.security import OAuth2PasswordRequestForm
-from app.core.security import verify_password, create_access_token
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
+from app.schemas.user_schema import UserOut, UserCreate
+# Import your new dependency here
+from app.dependencies import get_current_user 
 
-# Add this to your user_routes.py
-@router.post("/login")
-def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
-    # 1. Find the user by email
-    user = db.query(user.User).filter(user.User.email == form_data.username).first()
-    
-    # 2. Check if user exists and password is correct
-    if not user or not verify_password(form_data.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
-        )
-    
-    # 3. Create the "Digital ID Card" (Token)
-    access_token = create_access_token(data={"sub": user.email, "role": user.role})
-    
-    return {"access_token": access_token, "token_type": "bearer"}
+router = APIRouter(prefix="/users", tags=["Users"])
+
+# ... (Keep your register and login routes here)
+
+@router.get("/me", response_model=UserOut)
+def read_users_me(current_user: User = Depends(get_current_user)):
+    """
+    This route is PROTECTED. If you don't provide a valid JWT token,
+    FastAPI will automatically return a 401 Unauthorized error.
+    """
+    return current_user
