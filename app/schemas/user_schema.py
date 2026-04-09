@@ -1,15 +1,20 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
 
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-    role: str = "customer"
+class RestaurantBase(BaseModel):
+    name: str
+    address_line: str
+    city: str
+    postal_code: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
-class UserOut(BaseModel):
+class RestaurantCreate(RestaurantBase):
+    pass # Data required to create a restaurant
+
+class RestaurantOut(RestaurantBase):
     id: int
-    email: EmailStr
-    role: str
+    owner_id: int
 
     class Config:
         from_attributes = True

@@ -1,19 +1,13 @@
 from sqlalchemy.orm import Session
-from app.models.user import User
-from app.schemas.user_schema import UserCreate
-from app.core.security import hash_password # Import the tool
+from app.models.restaurant import Restaurant
+from app.schemas.restaurant_schema import RestaurantCreate
 
-def create_user(db: Session, user_data: UserCreate):
-    # Hash the password! 
-    hashed_pwd = hash_password(user_data.password)
-    
-    new_user = User(
-        email=user_data.email,
-        password=hashed_pwd, # Save the "scrambled" version
-        role=user_data.role
+def create_restaurant(db: Session, restaurant_data: RestaurantCreate, owner_id: int):
+    new_restaurant = Restaurant(
+        **restaurant_data.dict(), # This spreads out name, address, etc.
+        owner_id=owner_id
     )
-    
-    db.add(new_user)
+    db.add(new_restaurant)
     db.commit()
-    db.refresh(new_user)
-    return new_user
+    db.refresh(new_restaurant)
+    return new_restaurant

@@ -1,19 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database import get_db
+from app.schemas.restaurant_schema import RestaurantCreate, RestaurantOut
+from app.services import restaurant_service
+from app.dependencies import get_current_user
 from app.models.user import User
-from app.schemas.user_schema import UserOut, UserCreate
-# Import your new dependency here
-from app.dependencies import get_current_user 
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/restaurants", tags=["Restaurants"])
 
-# ... (Keep your register and login routes here)
-
-@router.get("/me", response_model=UserOut)
-def read_users_me(current_user: User = Depends(get_current_user)):
-    """
-    This route is PROTECTED. If you don't provide a valid JWT token,
-    FastAPI will automatically return a 401 Unauthorized error.
-    """
-    return current_user
+@router.post("/", response_model=RestaurantOut, status_code=status.HTTP_201_CREATED)
+def add_restaurant(
+    restaurant_data: RestaurantCreate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    # This ensures the restaurant is linked to the person who is logged in!
+    return restaurant_service.create_restaurant(db, restaurant_data, current_user.id)
